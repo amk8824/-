@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>شاشة القفل - الكمارك العراقية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background-color: #002147;
+      overflow: hidden;
+    }
+
+    .lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #002147;
+      color: #ffd700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      z-index: 9999;
+      text-align: center;
+      padding-top: 160px;
+      box-sizing: border-box;
+    }
+
+    .header-logos {
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 40px;
+      box-sizing: border-box;
+      position: absolute;
+      top: 0;
+    }
+
+    .header-logos img {
+      width: 3.1cm;
+      height: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .header-logos img:hover {
+      transform: scale(1.1);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 48px;
+      text-shadow: 2px 2px 5px rgba(255, 215, 0, 0.5);
+    }
+
+    h3, h4 {
+      margin: 0;
+      font-size: 28px;
+      text-shadow: 2px 2px 5px rgba(255, 215, 0, 0.5);
+    }
+
+    .lock-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .lock-input input,
+    .lock-input button {
+      padding: 10px;
+      font-size: 14px;
+      width: 230px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ffd700;
+      text-align: center;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .lock-input button {
+      background-color: #ffd700;
+      color: #002147;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .lock-input button:hover {
+      background-color: #ffcc00;
+    }
+
+    .change-password-form {
+      display: none;
+      margin-top: 20px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .change-password-form input,
+    .change-password-form button {
+      padding: 10px;
+      font-size: 14px;
+      width: 230px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ffd700;
+      text-align: center;
+    }
+
+    .change-password-form button {
+      background-color: #ffd700;
+      color: #002147;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* التايتل المتحرك – مرفوع قليلاً أكثر */
+    .scrolling-container-fixed {
+      position: absolute;
+      bottom: 130px; /* تم رفعه أكثر */
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 10px 0;
+      border-top: 2px solid #ffd700;
+      border-bottom: 2px solid #ffd700;
+      background-color: rgba(255, 215, 0, 0.08);
+    }
+
+    .scrolling-title {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 36px;
+      font-weight: bold;
+      color: #ffd700;
+      animation: scrollTextForward 20s linear infinite;
+    }
+
+    @keyframes scrollTextForward {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .designer-info {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: #ffd700;
+    }
+
+    .designer-info a {
+      color: #ffea00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .designer-info a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lock-screen" id="lockScreen">
+    <!-- الشعارات -->
+    <div class="header-logos">
+      <img src="https://www2.0zz0.com/2025/05/19/22/510831948.png" alt="شعار يمين">
+      <img src="https://www2.0zz0.com/2025/05/19/22/823371779.png" alt="شعار يسار">
+    </div>
+
+    <!-- عناوين البرنامج -->
+    <h2>جمهورية العراق</h2>
+    <h2>وزارة المالية</h2>
+    <h3>الهيئة العامة للكمارك</h3>
+    <h4>مركز كمرك طريبيل 642</h4>
+
+    <!-- إدخال الرمز -->
+    <div class="lock-input">
+      <input type="password" id="passwordInput" placeholder="أدخل الرمز السري">
+      <button onclick="checkPassword()">دخول</button>
+      <button onclick="toggleChangePassword()">تغيير الرمز السري</button>
+    </div>
+
+    <!-- تغيير الرمز -->
+    <div class="change-password-form" id="changePasswordForm">
+      <input type="password" id="oldPassword" placeholder="الرمز السري الحالي">
+      <input type="password" id="newPassword" placeholder="الرمز السري الجديد">
+      <input type="password" id="confirmPassword" placeholder="تأكيد الرمز الجديد">
+      <button onclick="changePassword()">تأكيد التغيير</button>
+    </div>
+
+    <!-- التايتل المتحرك -->
+    <div class="scrolling-container-fixed">
+      <div class="scrolling-title">
+        أهلاً بك في نظام شعبة المنفست الإلكتروني – مركز كمرك طريبيل 642 – مدعوم بالذكاء الاصطناعي لتسهيل الإجراءات الجمركية والغاء التعامل الورقي.
+      </div>
+    </div>
+
+    <!-- معلومات المصمم -->
+    <div class="designer-info">
+      تم تصميم وبرمجة البرنامج بواسطة: <strong>احمد عبد القادر مشحن العبيدي</strong><br>
+      Email: <a href="mailto:alobaidymo@gmail.com">alobaidymo@gmail.com</a> | 
+      Whatsapp: <a href="tel:+9647768525871">+9647768525871</a><br>
+      🔹 هذا البرنامج مدعوم بتقنيات الذكاء الاصطناعي 🔹
+    </div>
+  </div>
+
+  <script>
+    if (!localStorage.getItem('lockCode')) {
+      localStorage.setItem('lockCode', '1234');
+    }
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      const savedCode = localStorage.getItem('lockCode');
+      if (input === savedCode) {
+        document.getElementById("lockScreen").style.display = "none";
+        alert("✅ تم الدخول!");
+      } else {
+        alert("❌ الرمز السري غير صحيح!");
+      }
+    }
+
+    function toggleChangePassword() {
+      const form = document.getElementById('changePasswordForm');
+      form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function changePassword() {
+      const oldPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const savedCode = localStorage.getItem('lockCode');
+
+      if (oldPassword !== savedCode) {
+        alert("❌ الرمز السري القديم غير صحيح!");
+      } else if (newPassword !== confirmPassword) {
+        alert("❌ الرمزان الجديدان لا يتطابقان!");
+      } else {
+        localStorage.setItem('lockCode', newPassword);
+        alert("✅ تم تغيير الرمز السري بنجاح!");
+        document.getElementById('changePasswordForm').style.display = 'none';
+      }
+    }
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الكمارك العراقية - شعبة المنفست الإلكتروني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 50px;
+      background-color: #002147;
+      color: yellow;
+    }
+
+    .left-header img, .right-header img {
+      width: 3.1cm;
+      height: auto;
+    }
+
+    .program-name {
+      text-align: center;
+      flex-grow: 1;
+      font-size: 28px;
+      font-weight: bold;
+      color: yellow;
+      line-height: 1.4;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 32px;
+      color: #002147;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .search-bar select, .search-bar input, .search-bar button {
+      padding: 14px;
+      font-size: 16px;
+      margin: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-bar button {
+      background-color: #002147;
+      color: white;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 18px;
+    }
+
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .styled-table th, .styled-table td {
+      padding: 14px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    .styled-table th {
+      background: linear-gradient(to right, #002147, #001a33);
+      color: white;
+    }
+
+    .buttons button {
+      padding: 14px 22px;
+      margin: 12px;
+      background-color: #002147;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      z-index: 9999;
+      max-height: 80vh;
+      overflow-y: auto;
+      width: 90vw; /* تعديل العرض ليكون مناسباً أكثر */
+    }
+
+    .designer-info {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 16px;
+      padding: 20px;
+      background: linear-gradient(to right, #001a33, #002147);
+      color: #fff;
+      border-top: 4px solid #ffd700;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .designer-info strong {
+      color: #ffd700;
+    }
+
+    .designer-info a {
+      color: #ffea00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .designer-info a:hover {
+      text-decoration: underline;
+      color: #fff176;
+    }
+
+    /* توسيع حقول الإدخال */
+    input[type="text"], input[type="number"], input[type="date"], select {
+      width: 100%;
+      padding: 16px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    /* زيادة عرض الأعمدة في الجداول */
+    .styled-table th, .styled-table td {
+      padding: 12px 20px;
+    }
+
+    /* زيادة حجم خط النصوص */
+    .styled-table th, .styled-table td {
+      font-size: 16px;
+    }
+
+    /* تحسين التوافق مع الشاشات الصغيرة */
+    @media screen and (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+      }
+
+      .program-name {
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+
+      .search-bar input,
+      .search-bar select,
+      .search-bar button {
+        width: 90%;
+      }
+
+      .styled-table th, .styled-table td {
+        font-size: 14px;
+        padding: 12px;
+      }
+
+      .modal {
+        width: 95vw;
+      }
+
+      .buttons button {
+        width: 100%;
+        padding: 14px;
+      }
+    }
+
+    /* تحسين العرض على الشاشات الكبيرة */
+    @media screen and (min-width: 1200px) {
+      .search-bar input,
+      .search-bar select,
+      .search-bar button {
+        width: 400px;
+      }
+
+      .modal {
+        width: 60vw; /* توسيع النافذة المنبثقة */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-container">
+    <div class="right-header">
+      <img src="https://www2.0zz0.com/2025/05/19/22/510831948.png" alt="شعار يمين">
+    </div>
+    <div class="program-name">
+      الكمارك العراقية - شعبة المنفست الإلكتروني<br>
+      <span style="font-size: 18px; font-weight: normal;">Iraqi Customs - E-Manifest Division</span><br>
+      <span style="font-size: 18px; font-weight: normal; display: block; margin-top: 10px;">مركز كمرك طريبيل الحدودي 642</span>
+    </div>
+    <div class="left-header">
+      <img src="https://www2.0zz0.com/2025/05/19/22/823371779.png" alt="شعار يسار">
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <label for="searchOption">ابحث باستخدام:</label>
+    <select id="searchOption">
+      <option value="certificateNumber">رقم الشهادة</option>
+      <option value="borderSerial">التسلسل الحدودي</option>
+    </select>
+    <input type="text" id="searchInput" placeholder="أدخل رقم الشهادة أو التسلسل الحدودي">
+    <button onclick="searchCertificates()">🔍 بحث</button>
+  </div>
+
+  <div id="searchResultsModal" class="modal">
+    <h3>📋 نتائج البحث</h3>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>اسم الشركة</th>
+          <th>رقم الشهادة</th>
+          <th>التسلسل الحدودي</th>
+          <th>التاريخ</th>
+          <th>نوع البضاعة</th>
+          <th>الكمية الكلية</th>
+          <th>المستقطعة</th>
+          <th>المتبقية</th>
+          <th>الوحدة</th>
+          <th>تاريخ ووقت الحفظ</th>
+        </tr>
+      </thead>
+      <tbody id="searchResultsList"></tbody>
+    </table>
+    <button onclick="closeSearchResultsModal()">❌ إغلاق</button>
+  </div>
+
+  <form id="dataForm">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>اسم الشركة</th>
+          <th>التسلسل الحدودي</th>
+          <th>رقم الشهادة</th>
+          <th>تاريخ الشهادة</th>
+          <th>الكمية الكلية</th>
+          <th>الوحدة</th>
+          <th>الكمية المستقطعة</th>
+          <th>نوع البضاعة</th>
+          <th>المتبقية</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" id="company"></td>
+          <td><input type="text" id="borderSerial"></td>
+          <td><input type="text" id="certificateNumber"></td>
+          <td><input type="date" id="certificateDate"></td>
+          <td><input type="number" id="totalQuantity" oninput="updateRemaining()"></td>
+          <td>
+            <select id="unit">
+              <option value="طن">طن</option>
+              <option value="عدد">عدد</option>
+            </select>
+          </td>
+          <td><input type="number" id="deductedQuantity" oninput="updateRemaining()"></td>
+          <td><input type="text" id="itemType"></td>
+          <td><input type="number" id="remainingQuantity" readonly></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="buttons">
+      <button type="button" onclick="saveCertificate()">💾 حفظ الشهادة</button>
+      <button type="button" onclick="openModal()">📂 عرض الشهادات</button>
+      <button type="button" onclick="exportToExcel()">📤 تصدير إلى Excel</button>
+    </div>
+  </form>
+
+  <div id="certificatesModal" class="modal">
+    <h3>📋 الشهادات المحفوظة</h3>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>اسم الشركة</th>
+          <th>رقم الشهادة</th>
+          <th>التسلسل الحدودي</th>
+          <th>التاريخ</th>
+          <th>نوع البضاعة</th>
+          <th>الكمية الكلية</th>
+          <th>المستقطعة</th>
+          <th>المتبقية</th>
+          <th>الوحدة</th>
+          <th>تاريخ ووقت الحفظ</th>
+        </tr>
+      </thead>
+      <tbody id="certificatesList"></tbody>
+    </table>
+    <button onclick="printCertificates()">🖨️ طباعة</button>
+    <button onclick="closeModal()">❌ إغلاق</button>
+  </div>
+
+  <div class="designer-info">
+    <p>تم تصميم وبرمجة البرنامج بواسطة: <strong>احمد عبد القادر مشحن العبيدي</strong></p>
+    <p>Email: <a href="mailto:alobaidymo@gmail.com">alobaidymo@gmail.com</a></p>
+    <p>Whatsapp: <a href="tel:+9647768525871">+9647768525871</a></p>
+  </div>
+
+  <script>
+    function updateRemaining() {
+      const total = parseFloat(document.getElementById('totalQuantity').value) || 0;
+      const deducted = parseFloat(document.getElementById('deductedQuantity').value) || 0;
+      document.getElementById('remainingQuantity').value = total - deducted;
+
+      // تنبيه عند نفاد الكمية
+      if (deducted >= total) {
+        alert("⚠️ الكمية الخاصة بهذه الشهادة قد نفذت!");
+      }
+    }
+
+    function saveCertificate() {
+      const cert = {
+        company: document.getElementById('company').value.trim(),
+        borderSerial: document.getElementById('borderSerial').value.trim(),
+        certificateNumber: document.getElementById('certificateNumber').value.trim(),
+        certificateDate: document.getElementById('certificateDate').value,
+        totalQuantity: document.getElementById('totalQuantity').value,
+        deductedQuantity: document.getElementById('deductedQuantity').value,
+        remainingQuantity: document.getElementById('remainingQuantity').value,
+        unit: document.getElementById('unit').value,
+        itemType: document.getElementById('itemType').value.trim(),
+        savedAt: new Date().toLocaleString()  // إضافة التاريخ والوقت
+      };
+      if (!cert.company || !cert.certificateNumber) {
+        alert("⚠️ يرجى إدخال كافة الحقول المطلوبة.");
+        return;
+      }
+      const certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
+      certificates.push(cert);
+      localStorage.setItem('certificates', JSON.stringify(certificates));
+      alert("✅ تم حفظ الشهادة.");
+      renderCertificates();
+      document.getElementById('dataForm').reset();
+    }
+
+    function renderCertificates() {
+      const list = document.getElementById('certificatesList');
+      list.innerHTML = '';
+      const certs = JSON.parse(localStorage.getItem('certificates') || '[]');
+      certs.forEach(cert => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${cert.company}</td>
+          <td>${cert.certificateNumber}</td>
+          <td>${cert.borderSerial}</td>
+          <td>${cert.certificateDate}</td>
+          <td>${cert.itemType}</td>
+          <td>${cert.totalQuantity}</td>
+          <td>${cert.deductedQuantity}</td>
+          <td>${cert.remainingQuantity}</td>
+          <td>${cert.unit}</td>
+          <td>${cert.savedAt}</td>  <!-- عرض التاريخ والوقت -->
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function openModal() {
+      document.getElementById('certificatesModal').style.display = 'block';
+      renderCertificates();
+    }
+
+    function closeModal() {
+      document.getElementById('certificatesModal').style.display = 'none';
+    }
+
+    function searchCertificates() {
+      const searchOption = document.getElementById('searchOption').value;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      const certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
+      const results = certificates.filter(cert => cert[searchOption].includes(searchTerm));
+      
+      const resultsList = document.getElementById('searchResultsList');
+      resultsList.innerHTML = '';
+      results.forEach(cert => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${cert.company}</td>
+          <td>${cert.certificateNumber}</td>
+          <td>${cert.borderSerial}</td>
+          <td>${cert.certificateDate}</td>
+          <td>${cert.itemType}</td>
+          <td>${cert.totalQuantity}</td>
+          <td>${cert.deductedQuantity}</td>
+          <td>${cert.remainingQuantity}</td>
+          <td>${cert.unit}</td>
+          <td>${cert.savedAt}</td>
+        `;
+        resultsList.appendChild(row);
+      });
+      document.getElementById('searchResultsModal').style.display = 'block';
+    }
+
+    function closeSearchResultsModal() {
+      document.getElementById('searchResultsModal').style.display = 'none';
+    }
+
+    function exportToExcel() {
+      const certificates = JSON.parse(localStorage.getItem('certificates') || '[]');
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(certificates);
+      XLSX.utils.book_append_sheet(wb, ws, "الشهادات");
+      XLSX.writeFile(wb, "الشهادات.xlsx");
+    }
+
+    function printCertificates() {
+      const printContent = document.getElementById('certificatesList').outerHTML;
+      const printWindow = window.open('', '', 'height=700,width=900');
+      printWindow.document.write('<html><head><title>الشهادات المحفوظة</title>');
+      printWindow.document.write('<style>table, th, td { border: 1px solid black; border-collapse: collapse; padding: 10px; }</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write('<h2>الشهادات المحفوظة</h2>');
+      printWindow.document.write('<table>' + printContent + '</table>');
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+    }
+
+    window.onload = renderCertificates;
+  </script>
+</body>
+</html>
+
